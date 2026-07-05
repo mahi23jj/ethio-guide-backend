@@ -39,7 +39,7 @@ func SetupRouter(
 			"http://localhost:3000",
 			"https://ethio-guide.vercel.app",
 			"https://your-production-site.com",
-			"https://ethio-guide-frontend-b3et.vercel.app"
+			"https://ethio-guide-frontend-b3et.vercel.app",
 		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Client-Type", "lang"},
