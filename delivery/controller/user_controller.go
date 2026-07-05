@@ -103,7 +103,7 @@ func (ctrl *UserController) Register(c *gin.Context) {
 		Username:         req.Username,
 		SubscriptionPlan: domain.SubscriptionNone,
 		IsBanned:         false,
-		IsVerified:       false,
+		IsVerified:       true,
 	}
 	account := &domain.Account{
 		Name:          req.Name,

@@ -217,26 +217,21 @@ func (s *UserUsecaseTestSuite) TestRegister_Success() {
 	s.mockUserRepo.On("GetByEmail", mock.Anything, user.Email).Return(nil, domain.ErrNotFound).Once()
 	s.mockUserRepo.On("GetByUsername", mock.Anything, user.UserDetail.Username).Return(nil, domain.ErrNotFound).Once()
 	s.mockPassSvc.On("HashPassword", "password123").Return("hashed_password", nil).Once()
-	s.mockUserRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.Account")).Return(nil).Once()
+	s.mockUserRepo.On("Create", mock.Anything, mock.MatchedBy(func(account *domain.Account) bool {
+		return account.UserDetail != nil && account.UserDetail.IsVerified && account.AuthProvider == domain.AuthProviderLocal && account.Role == domain.RoleUser
+	})).Return(nil).Once()
 	s.mockPrefRepo.On("Create", mock.Anything, mock.AnythingOfType("*domain.Preferences")).Return(nil).Once()
-
-	utilityClaims := &domain.JWTClaims{RegisteredClaims: jwt.RegisteredClaims{ID: "token-id", ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour))}}
-	s.mockJWTSvc.On("GenerateUtilityToken", mock.Anything).Return("utility-token", utilityClaims, nil).Once()
-	s.mockTokenRepo.On("CreateToken", mock.Anything, mock.AnythingOfType("*domain.Token")).Return(&domain.Token{}, nil).Once()
-	s.mockEmailSvc.Wg.Add(1) // Expect 1 call to a Wg.Done() method
-	s.mockEmailSvc.On("SendVerificationEmail", user.Email, user.UserDetail.Username, "utility-token").Return(nil).Once()
 	// Act
 	err := s.usecase.Register(s.ctx, user)
-	s.mockEmailSvc.Wg.Wait()
 
 	// Assert
 	s.NoError(err)
 	s.mockUserRepo.AssertExpectations(s.T())
 	s.mockPassSvc.AssertExpectations(s.T())
 	s.mockPrefRepo.AssertExpectations(s.T())
-	s.mockJWTSvc.AssertExpectations(s.T())
-	s.mockTokenRepo.AssertExpectations(s.T())
-	s.mockEmailSvc.AssertExpectations(s.T())
+	s.mockJWTSvc.AssertNotCalled(s.T(), "GenerateUtilityToken", mock.Anything)
+	s.mockTokenRepo.AssertNotCalled(s.T(), "CreateToken", mock.Anything, mock.Anything)
+	s.mockEmailSvc.AssertNotCalled(s.T(), "SendVerificationEmail", mock.Anything, mock.Anything, mock.Anything)
 }
 
 func (s *UserUsecaseTestSuite) TestRegister_EmailExists() {

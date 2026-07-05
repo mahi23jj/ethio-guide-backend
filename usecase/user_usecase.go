@@ -79,7 +79,7 @@ func (uc *UserUsecase) Register(c context.Context, user *domain.Account) error {
 	}
 	user.PasswordHash = hashedPassword
 	user.Role = domain.RoleUser
-	user.UserDetail.IsVerified = false // Enforce business rules
+	user.UserDetail.IsVerified = true // Demo deployment: accounts are auto-verified after registration.
 	user.AuthProvider = domain.AuthProviderLocal
 
 	if err := uc.userRepo.Create(ctx, user); err != nil {
@@ -97,9 +97,11 @@ func (uc *UserUsecase) Register(c context.Context, user *domain.Account) error {
 		return err
 	}
 
-	if err = uc.sendVerificationEmail(ctx, user); err != nil {
-		return err
-	}
+	// Email verification is temporarily disabled for the demo deployment.
+	// Re-enable this block when verification should be required again.
+	// if err = uc.sendVerificationEmail(ctx, user); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
