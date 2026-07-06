@@ -13,6 +13,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+import "strings"
 
 // SetupRouter initializes the Gin router and registers all application routes.
 func SetupRouter(
@@ -34,24 +35,20 @@ func SetupRouter(
 
 	router := gin.Default()
 
+
 	config := cors.Config{
-		/* AllowOrigins: []string{
-			"http://localhost:3000",
-			"https://ethio-guide.vercel.app",
-			"https://your-production-site.com",
-			"https://ethio-guide-frontend-b3et.vercel.app",
-		},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Client-Type", "lang"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour, */
-
-
-		
-    	AllowAllOrigins: true,
-
-	}
+    AllowOriginFunc: func(origin string) bool {
+        return strings.HasPrefix(origin, "http://localhost") ||
+               strings.HasPrefix(origin, "http://127.0.0.1") ||
+               origin == "https://ethio-guide.vercel.app" ||
+               origin == "https://ethio-guide-frontend-b3et.vercel.app"
+    },
+    AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+    AllowHeaders: []string{"Origin", "Content-Type", "Authorization", "X-Client-Type", "lang"},
+    ExposeHeaders: []string{"Content-Length"},
+    AllowCredentials: true,
+    MaxAge: 12 * time.Hour,
+   }
 	router.Use(cors.New(config))
 	router.Use(translationMiddleware)
 
