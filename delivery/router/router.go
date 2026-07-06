@@ -35,7 +35,7 @@ func SetupRouter(
 	router := gin.Default()
 
 	config := cors.Config{
-		AllowOrigins: []string{
+		/* AllowOrigins: []string{
 			"http://localhost:3000",
 			"https://ethio-guide.vercel.app",
 			"https://your-production-site.com",
@@ -45,7 +45,12 @@ func SetupRouter(
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Client-Type", "lang"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		MaxAge:           12 * time.Hour, */
+
+
+		
+    	AllowAllOrigins: true,
+
 	}
 	router.Use(cors.New(config))
 	router.Use(translationMiddleware)
